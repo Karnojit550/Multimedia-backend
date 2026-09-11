@@ -288,7 +288,8 @@ class FileService {
    */
   async getFileById(id) {
     try {
-      const file = await File.findOne({ _id: id, userId: this.userId, enabled: true });
+      const file = await File.findOne({ _id: id, enabled: true });
+
       if (!file) {
         const error = new Error("File not found.");
         error.statusCode = 404;
