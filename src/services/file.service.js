@@ -15,6 +15,8 @@ class FileService {
       ? new mongoose.Types.ObjectId(this.userId)
       : this.userId;
   }
+
+
   /**
    * Uploads a file to Cloudinary and saves its metadata in MongoDB.
    *
@@ -58,7 +60,7 @@ class FileService {
    * @returns {Promise<File>} Files list with pagination details.
    */
   async getFiles() {
-    const { page, limit, search, from, to, type, sort } = this.req.query;
+    const { page, limit, search, from, to, type, sort, view } = this.req.query;
 
     // If sort is not provided:
     // - Use relevance sorting when a search query is present.
@@ -68,8 +70,13 @@ class FileService {
     try {
       // Build the MongoDB filter.
       // Only return enabled files belonging to the authenticated user.
+
+      //view==all then send user all files except his own upload  he see other upload ed things
+
       const filter = {
-        userId: this.databaseUserId,
+        ...(view === "all"
+          ? { userId: { $ne: this.databaseUserId } }
+          : { userId: this.databaseUserId }),
         enabled: true,
         ...this.buildSearchFilter(search, from, to, type)
       };
